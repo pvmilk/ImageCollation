@@ -29,6 +29,13 @@ python main.py download -p path
 **args**
 - `-p, --path` directory where manuscripts will be downloaded.
 
+Since D2 dataset from www.wdl.org has been concluded and moved to loc.gov in 2021.
+You need to run the following script to rename the downloaded file before preceeding.
+```
+$ cd path/D2
+$ ls --color=never -1 | awk '{system("mv "$0 " 10690,1,"NR".jpg")}'
+```
+
 To extract the illustrations from the folios use:
 ```
 python main.py extract -p path -a annotation_path
