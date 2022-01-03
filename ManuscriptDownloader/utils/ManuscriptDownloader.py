@@ -6,6 +6,9 @@ from os.path import join, exists
 from pathlib import Path
 from urllib import request
 import math
+import shutil
+
+# from IPython import embed
 
 
 class ManuscriptDownloader:
@@ -14,7 +17,12 @@ class ManuscriptDownloader:
 
     @staticmethod
     def get_json(url):
-        with urllib.request.urlopen(url) as url_:
+        # with urllib.request.urlopen(url) as url_:
+        req = urllib.request.Request(
+            url,
+            headers={'User-Agent': 'Mozilla/5.0'}
+        )
+        with urllib.request.urlopen(req) as url_:
             data = json.loads(url_.read().decode())
             return data
 
@@ -108,23 +116,53 @@ class ManuscriptDownloader:
                 img_urls[img_path] = img_url
         return img_urls
 
+    # @staticmethod
+    # def get_wdl_img_urls(ms_name, dest_path, width=1024, height=''):
+    #     manifest = "https://www.wdl.org/en/item/{}/iiif/manifest.json".format(ms_name)
+    #     data = ManuscriptDownloader.get_json(manifest)
+    #     # canvases = [canvas["images"][0]["resource"]["service"]['@id'] for canvas in data['sequences'][0]['canvases']]
+    #     urls = [canvas["images"][0]["resource"]['@id'] for canvas in data['sequences'][0]['canvases']]
+    #     if width == -1:
+    #         resolution = 'full'
+    #     else:
+    #         resolution = str(width) + ',' + str(height)
+    #     img_urls = dict()
+    #     for img_url in urls:
+    #         image_id = img_url.split("/")[4]
+    #         img_path = join(dest_path, image_id + ".jpg")
+    #         img_url = "https://content.wdl.org/iiif/{}/full/{}/0/default.jpg".format(image_id, resolution)
+    #         if not (exists(img_path)):
+    #             img_urls[img_path] = img_url
+    #     return img_urls
+
     @staticmethod
     def get_wdl_img_urls(ms_name, dest_path, width=1024, height=''):
-        manifest = "https://www.wdl.org/en/item/{}/iiif/manifest.json".format(ms_name)
+        # https://www.loc.gov/item/2021667873
+        assert(ms_name == 10690)
+        manifest = "https://www.loc.gov/item/2021667873/manifest.json"
         data = ManuscriptDownloader.get_json(manifest)
-        # canvases = [canvas["images"][0]["resource"]["service"]['@id'] for canvas in data['sequences'][0]['canvases']]
-        urls = [canvas["images"][0]["resource"]['@id'] for canvas in data['sequences'][0]['canvases']]
-        if width == -1:
-            resolution = 'full'
-        else:
-            resolution = str(width) + ',' + str(height)
+        img_infos = [canvas["images"][0]["resource"] for canvas in data['sequences'][0]['canvases']]
         img_urls = dict()
-        for img_url in urls:
-            image_id = img_url.split("/")[4]
+
+        for img_info in img_infos:
+            orig_img_url = img_info["@id"]
+            orig_img_width = img_info["width"]
+
+            size_ratio = math.ceil(width / orig_img_width * 1e6) / 1e4
+            size_pct = 100 if width == -1 else size_ratio
+            assert(int(size_pct * orig_img_width / 100) == width)
+
+            image_full_id = orig_img_url.split("/")[5]
+            assert(image_full_id.split(":")[-2] == "wdl_{}".format(ms_name))
+            image_id = image_full_id.split(":")[-1]
             img_path = join(dest_path, image_id + ".jpg")
-            img_url = "https://content.wdl.org/iiif/{}/full/{}/0/default.jpg".format(image_id, resolution)
+
+            img_url = "https://tile.loc.gov/image-services/iiif/" + \
+                "{}/full/pct:{}/0/default.jpg".format(image_full_id,
+                                                      size_pct)
             if not (exists(img_path)):
                 img_urls[img_path] = img_url
+
         return img_urls
 
     @staticmethod
@@ -132,7 +170,17 @@ class ManuscriptDownloader:
         Path(ms_path).mkdir(parents=True, exist_ok=True)
         if len(img_urls) > 0:
             for img_path, url in tqdm(img_urls.items()):
-                urllib.request.urlretrieve(url, img_path)
+                # urllib.request.urlretrieve(url, img_path)
+                req = urllib.request.Request(
+                    url,
+                    headers={'User-Agent': 'Mozilla/5.0'}
+                )
+
+                # https://stackoverflow.com/a/63441668/2514809
+                with urllib.request.urlopen(req) as \
+                        response, open(img_path, 'wb') as out_file:
+                    shutil.copyfileobj(response, out_file)
+
                 ManuscriptDownloader.crop_image(img_path, rgb, pixels_to_crop)
 
 
