@@ -40,3 +40,14 @@ pip3 install -r $BASEDIR/requirements.txt
 # pip3 install -r $BASEDIR/requirements-tpu.txt
 
 export PATH_DATASET
+
+#
+# https://github.com/googlecolab/colabtools/issues/818#issuecomment-768535005
+#
+# Set path for library which is self compiled
+if [[ -n $LD_LIBRARY_PATH ]]; then
+    LD_LIBRARY_PATH=/usr/lib64-nvidia:$LD_LIBRARY_PATH
+else
+    LD_LIBRARY_PATH=/usr/lib64-nvidia
+fi
+export LD_LIBRARY_PATH;
