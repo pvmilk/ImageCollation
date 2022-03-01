@@ -1,3 +1,4 @@
+> :warning: **forked from [Rykoua/ImageCollation](https://github.com/Rykoua/ImageCollation)**; de-forked due to git-lfs
 # Image Collation
 
 (ICDAR 2021) Pytorch implementation of Paper "Image Collation: Matching illustrations in manuscripts"
