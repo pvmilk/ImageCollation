@@ -1,12 +1,18 @@
+import os
 import torch
 from torch import nn
+
+script_path = os.path.abspath(__file__)
 
 copyweight = False
 
 resnet_50 = torch.hub.load('pytorch/vision:v0.6.0', 'resnet50', pretrained=True)
 
 if copyweight:
-    model_path = 'weights/simsiam_20220218-014917/checkpoints/last.pt'
+    model_path = os.path.join(
+        os.path.dirname(script_path),
+        'weights/simsiam_20220218-014917/checkpoints/last.pt'
+    )
     resnet_50 = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=True)
 
 
