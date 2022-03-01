@@ -5,15 +5,29 @@ from torch import nn
 script_path = os.path.abspath(__file__)
 
 copyweight = False
+model_name = 'resnet18ft1'
 
 resnet_50 = torch.hub.load('pytorch/vision:v0.6.0', 'resnet50', pretrained=True)
 
 if copyweight:
+    path_model = {
+        'resnet18ft0' :
+        ('weights/simsiam_20220218-014917/checkpoints/last.pt', 'resnet18'),
+        'resnet18ft1' :
+        ('weights/simsiam_20220224-160133/checkpoints/last.pt', 'resnet18'),
+        'resnet50ft1' :
+        ('weights/simsiam_20220224-154343/checkpoints/last.pt', 'resnet50'),
+    }
+
     model_path = os.path.join(
         os.path.dirname(script_path),
-        'weights/simsiam_20220218-014917/checkpoints/last.pt'
+        path_model[model_name][0]
     )
-    resnet_50 = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=True)
+    resnet_50 = torch.hub.load(
+        'pytorch/vision:v0.6.0',
+        path_model[model_name][1],
+        pretrained=True
+    )
 
 
 class ResNet50Conv4(nn.Module):
