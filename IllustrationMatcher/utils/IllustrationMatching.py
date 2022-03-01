@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 from .feature_matching import FeatureMatching
 from .fast_feature_matching import FastFeatureMatching
-from .models import get_conv4_model
+from .models import get_conv4_model, WeightEnum
 import torch
 
 from .ransac import Ransac
@@ -23,13 +23,18 @@ import re
 
 
 class IllustrationMatching:
-    def __init__(self, folder1, folder2, fast=True):
+    def __init__(self, folder1, folder2, fast=True,
+                 model_weight=WeightEnum.RESNET50):
         self.folder1 = folder1
         self.folder2 = folder2
         if fast:
-            self.feature_matching = FastFeatureMatching(get_conv4_model())
+            self.feature_matching = FastFeatureMatching(
+                get_conv4_model(model_weight)
+            )
         else:
-            self.feature_matching = FeatureMatching(get_conv4_model())
+            self.feature_matching = FeatureMatching(
+                get_conv4_model(model_weight)
+            )
         self.ransac = Ransac()
 
     @staticmethod
