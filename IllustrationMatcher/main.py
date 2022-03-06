@@ -3,7 +3,6 @@ import argparse
 from utils.IllustrationMatching import IllustrationMatching
 from utils.get_ground_truth import load_json_as_list
 from utils.score_matrix_func import normalize_score_matrix, propagate_matches, get_recall_performance
-from utils.models import WeightEnum
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Find same illustrations in two different manuscripts')
@@ -12,10 +11,9 @@ if __name__ == "__main__":
     parser.add_argument('-r', '--results_dir', nargs='?', type=str, required=True, help='results directory')
     parser.add_argument('-gt', '--ground_truth', nargs='?', type=str, required=False, default=None,
                         help='true matches')
-    parser.add_argument('-w', '--weight', type=WeightEnum,
-                        default=WeightEnum.RESNET50,
-                        choices=list(WeightEnum),
-                        help='choosing weight for the model'
+    parser.add_argument('-w', '--weight', type=str,
+                        default='resnet50',
+                        help='torch model arch, or path to project'
                         )
 
     args = parser.parse_args()
