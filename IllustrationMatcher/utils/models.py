@@ -60,6 +60,9 @@ def get_conv4_model(weight=None):
         arch = weight
         path2weight = None
 
+    print('arch : {}'.format(arch))
+    print('path2weight: {}'.format(path2weight))
+
     orig_model = torch.hub.load(
         'pytorch/vision:v0.6.0', arch,
         pretrained=(path2weight is None)
